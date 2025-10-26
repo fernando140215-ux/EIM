@@ -1,123 +1,202 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulario de Laboratorio y Síntomas</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Errores Innatos del Metabolismo - Diagnóstico</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-  body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
-  h1, h3 { color: #333; }
-  .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  .grid { display: grid; gap: 10px; }
-  .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-  .sintoma-btn { border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px; cursor: pointer; background: #f5f5f5; }
-  .sintoma-btn.selected { background: #cce5ff; border-color: #007bff; }
-  input, select { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; margin-top: 4px; }
-  label { display: block; margin-top: 10px; font-weight: bold; }
-  .logo { max-width: 150px; display: block; margin-bottom: 20px; }
-  .references { font-size: 0.9em; margin-top: 20px; }
-  .references li { margin-bottom: 8px; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg,#f8fafc 0,#fdf2f8 50%,#eef2ff 100%); }
+  .icon-btn { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .9rem; border-radius:.6rem; }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .logo-img { width: 140px; height: auto; object-fit: contain; }
+  header .title { text-align: center; }
+  footer { font-size: .85rem; color: #374151; padding: 1rem 0; text-align:center; border-top:1px solid rgba(15,23,42,0.06); background: #ffffffea; }
+  .btn { padding: .6rem 1rem; border-radius: .6rem; font-weight:700; }
 </style>
 </head>
-<body>
+<body class="min-h-screen p-6">
+  <div class="max-w-6xl mx-auto">
+    <header class="flex items-center gap-4 mb-6 bg-white p-4 rounded-xl shadow-sm">
+      <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD..." alt="Logo MSP" class="logo-img" />
+      <div class="flex-1 title">
+        <h1 class="text-2xl font-bold text-gray-800">Hospital Pediátrico “Baca Ortiz”</h1>
+        <p class="text-sm text-gray-600">Ministerio de Salud Pública</p>
+        <p class="text-sm text-gray-500 mt-1">Asistente de Diagnóstico Metabólico Pediátrico</p>
+      </div>
+    </header>
 
-<div class="container">
-  <!-- Logo -->
-  <img src="logo.png" alt="Logo" class="logo">
+    <main class="bg-white p-6 rounded-2xl shadow-lg">
+      <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+        <div class="flex gap-3 items-start">
+          <div class="text-red-600" aria-hidden="true">⚠️</div>
+          <div>
+            <p class="text-sm text-red-800 font-bold">ADVERTENCIA</p>
+            <p class="text-xs text-red-700">Herramienta educativa y de apoyo. NO reemplaza la evaluación clínica ni la toma de decisiones del equipo médico.</p>
+          </div>
+        </div>
+      </div>
 
-  <h1>Formulario de Laboratorio y Síntomas</h1>
+      <div id="app"></div>
+    </main>
 
-  <!-- Síntomas -->
-  <h3>Síntomas (pulse para seleccionar)</h3>
-  <div id="sintomasContainer" class="grid grid-cols-3">
-    <button type="button" class="sintoma-btn" data-s="Fiebre">Fiebre</button>
-    <button type="button" class="sintoma-btn" data-s="Vómitos">Vómitos</button>
-    <button type="button" class="sintoma-btn" data-s="Letargo">Letargo</button>
-    <button type="button" class="sintoma-btn" data-s="Convulsiones">Convulsiones</button>
-    <button type="button" class="sintoma-btn" data-s="Ictericia">Ictericia</button>
-    <button type="button" class="sintoma-btn" data-s="Deshidratación">Deshidratación</button>
-    <button type="button" class="sintoma-btn" data-s="Dolor abdominal">Dolor abdominal</button>
-    <button type="button" class="sintoma-btn" data-s="Hipotonía">Hipotonía</button>
+    <footer>
+      <div>Asistente de Diagnóstico Metabólico Pediátrico – versión 2025</div>
+      <div class="mt-1">Autor: <strong>Dr. Fernando Cruz Tamayo</strong></div>
+    </footer>
   </div>
-
-  <!-- Laboratorio -->
-  <h3>Laboratorio</h3>
-  <div class="grid grid-cols-3">
-    <div>
-      <label>Glucosa (mg/dL)</label>
-      <input type="number" id="glucosa" placeholder="70–100">
-      <label>Cetonas</label>
-      <select id="cetona">
-        <option value="">Indefinido</option>
-        <option value="negativo">Negativo</option>
-        <option value="positivo">Positivo</option>
-        <option value="alto">Alto</option>
-      </select>
-      <label>pH</label>
-      <input type="text" id="ph" placeholder="7.35–7.45">
-      <label>HCO₃⁻ (mEq/L)</label>
-      <input type="number" id="bicarbonato" placeholder="22–26">
-    </div>
-    <div>
-      <label>Na⁺ (mmol/L)</label>
-      <input type="number" id="sodio" placeholder="135–145">
-      <label>Cl⁻ (mmol/L)</label>
-      <input type="number" id="cloro" placeholder="98–107">
-      <label>Lactato (mmol/L)</label>
-      <input type="number" id="lactato" placeholder="<2.5">
-      <label>NH₃ (µmol/L)</label>
-      <input type="number" id="amonio" placeholder="20–100">
-    </div>
-    <div>
-      <label>TGP (U/L)</label>
-      <input type="number" id="tgp" placeholder="10–50">
-      <label>CPK (U/L)</label>
-      <input type="number" id="cpk" placeholder="40–150">
-      <p>Anion Gap: <strong id="anionGap">---</strong> (Referencia 8–16)</p>
-    </div>
-  </div>
-
-  <!-- Referencias -->
-  <div class="references">
-    <h3>Referencias</h3>
-    <ol>
-      <li>Prietsch V, Lindner M, Zschocke J, et al. <em>Emergency management of inherited metabolic diseases</em>, J Inherit Metab Dis, 2002. Base del algoritmo de emergencias metabólicas.</li>
-      <li>Burton BK. <em>Inborn errors of metabolism in infancy: a guide to diagnosis</em>, Pediatrics, 1998. Guía para reconocimiento de EIM en lactantes.</li>
-      <li>Häberle J, et al. <em>Guidelines for the diagnosis and management of urea cycle disorders</em>, Orphanet J Rare Dis, 2012. NH3 >100 anormal, >200 emergencia.</li>
-      <li>Marsden D, Bedrosian CL, Vockley J. <em>Impact of newborn screening on fatty acid oxidation disorders</em>, Genet Med, 2021. Revisión sobre defectos beta-oxidación.</li>
-      <li>Merritt JL, MacLeod E, Jurecka A, Hainline B. <em>Clinical manifestations and management of fatty acid oxidation disorders</em>, Rev Endocr Metab Disord, 2020. Revisión completa de 2020.</li>
-      <li>Chinnery PF, Turnbull DM. <em>Mitochondrial DNA and disease</em>, Lancet, 1999. Artículo clásico sobre enfermedades mitocondriales.</li>
-      <li>Roe CR, et al. <em>Organic acidemias: diagnosis and management</em>, Mol Genet Metab, 2005. Revisión de acidemias orgánicas y tratamiento.</li>
-      <li>Chuang DT, et al. <em>Maple syrup urine disease: clinical and biochemical aspects</em>, J Pediatr, 2006. Diagnóstico y manejo de enfermedad de orina con olor a jarabe de arce.</li>
-    </ol>
-  </div>
-</div>
 
 <script>
-  // Selección de síntomas
-  const botones = document.querySelectorAll('.sintoma-btn');
-  botones.forEach(btn => {
-    btn.addEventListener('click', () => {
-      btn.classList.toggle('selected');
-    });
+const references = [
+  { title: "Emergency management of inherited metabolic diseases", authors: "Prietsch V, Lindner M, Zschocke J, et al.", journal: "J Inherit Metab Dis", year: "2002", doi: "10.1023/A:1022040422590", notes: "Clasificacion de EIM en 5 categorias. Base del algoritmo de emergencias metabolicas." },
+  { title: "Inborn errors of metabolism in infancy: a guide to diagnosis", authors: "Burton BK", journal: "Pediatrics", year: "1998", doi: "10.1542/peds.102.6.e69", notes: "Guia para reconocimiento de EIM en lactantes." },
+  { title: "Guidelines for the diagnosis and management of urea cycle disorders", authors: "Häberle J, et al.", journal: "Orphanet J Rare Dis", year: "2012", doi: "10.1186/1750-1172-7-32", notes: "NH3 >100 anormal, >200 emergencia." },
+  { title: "Impact of newborn screening on fatty acid oxidation disorders", authors: "Marsden D, Bedrosian CL, Vockley J", journal: "Genet Med", year: "2021", doi: "10.1038/s41436-020-01070-0", notes: "Revision 2021 sobre defectos beta-oxidacion." },
+  { title: "Clinical manifestations and management of fatty acid oxidation disorders", authors: "Merritt JL, MacLeod E, Jurecka A, Hainline B", journal: "Rev Endocr Metab Disord", year: "2020", doi: "10.1007/s11154-020-09568-3", notes: "Revision completa 2020." },
+  { title: "Mitochondrial DNA and disease", authors: "Chinnery PF, Turnbull DM", journal: "Lancet", year: "1999", doi: "10.1016/S0140-6736(99)90244-1", notes: "Articulo clasico enfermedades mitocondriales." },
+  { title: "Newborn metabolic screening programs", authors: "Van Karnebeek C, et al.", journal: "Mol Genet Metab", year: "2019", doi: "10.1016/j.ymgme.2019.02.008", notes: "Importancia de cribado neonatal para EIM." },
+  { title: "Metabolic emergencies in pediatric practice", authors: "Van Karnebeek C, et al.", journal: "J Pediatr", year: "2014", doi: "10.1016/j.jpeds.2014.01.056", notes: "Protocolos de emergencia metabolica pediatrica." }
+];
+
+const symptoms = ['Letargia','Vómitos','Convulsiones','Rechazo alimento','Hepatomegalia','Olor anormal','Retraso','Hipotonía','Crisis ayuno','Fiebre','Cardiomiopatía','Distress'];
+
+let state = {
+  step: 'input',
+  clinical: { edad:'', unidad:'meses', presentacion:'aguda', sintomas:[] },
+  labs: { glucosa:'', lactato:'', amonio:'', cetona:'', ph:'', bicarbonato:'', sodio:'', cloro:'', anionGap:'', tgp:'', cpk:'' },
+  diagnosis: [],
+  flow: [],
+  showRefs: false
+};
+
+function calcAG(na, cl, hco3) {
+  const s = parseFloat(na), c = parseFloat(cl), b = parseFloat(hco3);
+  return (!isNaN(s) && !isNaN(c) && !isNaN(b)) ? (s - (c + b)).toFixed(1) : '';
+}
+
+const container = document.getElementById('app');
+
+function render() {
+  container.innerHTML = '';
+  if (state.step === 'input') renderInput();
+  else renderResult();
+  if (state.showRefs) renderRefsModal();
+  attachHandlers();
+}
+
+function renderInput() {
+  const ag = calcAG(state.labs.sodio, state.labs.cloro, state.labs.bicarbonato) || '---';
+  container.innerHTML = `
+  <div class="space-y-6">
+    <div class="grid md:grid-cols-3 gap-3 mb-2">
+      <div class="flex flex-col"><label class="text-sm font-semibold">Edad</label><input id="edad" class="px-3 py-2 border rounded" type="number" value="${state.clinical.edad}" placeholder="Edad"/></div>
+      <div class="flex flex-col"><label class="text-sm font-semibold">Unidad</label>
+        <select id="unidad" class="px-3 py-2 border rounded">
+          <option value="dias" ${state.clinical.unidad==='dias'?'selected':''}>Días</option>
+          <option value="meses" ${state.clinical.unidad==='meses'?'selected':''}>Meses</option>
+          <option value="anos" ${state.clinical.unidad==='anos'?'selected':''}>Años</option>
+        </select></div>
+      <div class="flex flex-col"><label class="text-sm font-semibold">Presentación</label>
+        <select id="present" class="px-3 py-2 border rounded">
+          <option value="aguda" ${state.clinical.presentacion==='aguda'?'selected':''}>Aguda</option>
+          <option value="cronica" ${state.clinical.presentacion==='cronica'?'selected':''}>Crónica</option>
+        </select></div>
+    </div>
+
+    <div>
+      <p class="font-semibold text-gray-700 mb-1">Síntomas</p>
+      <div class="flex flex-wrap gap-2">
+        ${symptoms.map(s=>`<button class="border px-3 py-1 rounded ${state.clinical.sintomas.includes(s)?'bg-purple-100 border-purple-500 font-semibold':''}" data-s="${s}">${s}</button>`).join('')}
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-3">
+      ${['glucosa','lactato','amonio','cetona','ph','bicarbonato','sodio','cloro','tgp','cpk'].map(lab=>`
+      <div class="flex flex-col"><label class="text-sm font-semibold">${lab.toUpperCase()}</label>
+      <input id="${lab}" type="number" step="any" value="${state.labs[lab]||''}" class="px-2 py-1 border rounded"/></div>`).join('')}
+      <div class="flex flex-col"><label class="text-sm font-semibold">Anion Gap</label>
+        <div class="px-2 py-1 border rounded text-red-700 font-semibold">${ag}</div>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mt-4">
+      <button id="analizar" class="btn bg-green-600 text-white hover:bg-green-700">Analizar</button>
+      <button id="resetBtn" class="btn bg-gray-300 hover:bg-gray-400">Nuevo Paciente</button>
+      <button id="refsBtn" class="btn bg-blue-500 text-white hover:bg-blue-600">Referencias</button>
+    </div>
+  </div>`;
+}
+
+function renderRefsModal() {
+  const modal = document.createElement('div');
+  modal.innerHTML = `
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-xl max-w-2xl overflow-y-auto max-h-[80vh]">
+      <h2 class="text-xl font-bold mb-4">Referencias</h2>
+      <ul class="space-y-3">
+        ${references.map(r=>`<li><strong>${r.title}</strong> - ${r.authors} (${r.year}). <em>${r.notes}</em></li>`).join('')}
+      </ul>
+      <div class="mt-4 text-right"><button onclick="state.showRefs=false;render()" class="btn bg-red-500 text-white hover:bg-red-600">Cerrar</button></div>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+}
+
+function renderResult() {
+  container.innerHTML = `
+  <div class="text-center py-20"><h2 class="text-2xl font-bold text-green-700">Diagnóstico generado</h2>
+  <p class="mt-4 text-gray-700">Este es un ejemplo de resultado basado en los valores ingresados.</p>
+  <div class="mt-6 text-right"><button id="backBtn" class="btn bg-gray-300 hover:bg-gray-400">Volver</button></div></div>`;
+}
+
+function attachHandlers() {
+  ['glucosa','lactato','amonio','cetona','ph','bicarbonato','sodio','cloro','tgp','cpk'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.oninput = (e)=>updateLabValue(e,id);
   });
 
-  // Calcular Anion Gap
-  function calcAnionGap() {
-    const Na = parseFloat(document.getElementById('sodio').value);
-    const Cl = parseFloat(document.getElementById('cloro').value);
-    const HCO3 = parseFloat(document.getElementById('bicarbonato').value);
-    if (!isNaN(Na) && !isNaN(Cl) && !isNaN(HCO3)) {
-      document.getElementById('anionGap').textContent = (Na - (Cl + HCO3)).toFixed(1);
-    } else {
-      document.getElementById('anionGap').textContent = '---';
-    }
+  const back = document.getElementById('backBtn');
+  if(back) back.onclick = ()=>{state.step='input'; render();};
+
+  const newBtn = document.getElementById('resetBtn');
+  if(newBtn) newBtn.onclick = ()=>{state={step:'input', clinical:{edad:'', unidad:'meses', presentacion:'aguda', sintomas:[]}, labs:{}, diagnosis:[], flow:[], showRefs:false}; render();};
+
+  const refsBtn = document.getElementById('refsBtn');
+  if(refsBtn) refsBtn.onclick = ()=>{state.showRefs=true; renderRefsModal();};
+
+  document.querySelectorAll('[data-s]').forEach(btn=>{
+    btn.onclick=()=>{
+      const s=btn.getAttribute('data-s');
+      if(state.clinical.sintomas.includes(s)) state.clinical.sintomas=state.clinical.sintomas.filter(x=>x!==s);
+      else state.clinical.sintomas.push(s);
+      btn.classList.toggle('bg-purple-100');
+      btn.classList.toggle('border-purple-500');
+      btn.classList.toggle('font-semibold');
+    };
+  });
+
+  const analizar = document.getElementById('analizar');
+  if(analizar) analizar.onclick = ()=>{state.step='result'; render();}
+}
+
+function updateLabValue(e,id){
+  const val = e.target.value;
+  switch(id){
+    case 'bicarbonato': state.labs.bicarbonato = val; break;
+    case 'amonio': state.labs.amonio = val; break;
+    case 'sodio': state.labs.sodio = val; break;
+    case 'cloro': state.labs.cloro = val; break;
+    case 'ph':
+      if(val && val.length>=3 && !val.includes('.')) e.target.value=val.slice(0,1)+'.'+val.slice(1);
+      state.labs.ph = e.target.value; break;
+    default: state.labs[id] = val; break;
   }
+  const agEl = document.querySelector('.text-red-700');
+  if(agEl) agEl.innerText = calcAG(state.labs.sodio, state.labs.cloro, state.labs.bicarbonato) || '---';
+}
 
-  document.getElementById('sodio').addEventListener('input', calcAnionGap);
-  document.getElementById('cloro').addEventListener('input', calcAnionGap);
-  document.getElementById('bicarbonato').addEventListener('input', calcAnionGap);
+render();
 </script>
-
 </body>
 </html>
