@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico Metabólico Pediátrico</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background-color: #f9fafb; }
+  .btn { @apply px-4 py-2 rounded-lg font-semibold shadow hover:opacity-90 transition; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+  <div id="app" class="w-full max-w-3xl bg-white p-6 rounded-2xl shadow-md"></div>
+
+<script>
+const app = document.getElementById("app");
+
+let state = {
+  step: "input",
+  clinicalData: { age: "", unit: "meses", symptoms: [] },
+  labValues: { glucose: "", ammonium: "", lactate: "", ph: "", sodium: "", chloride: "", bicarbonate: "", cpk: "" },
+  result: null
+};
+
+const symptomsList = [
+  "Vómitos recurrentes",
+  "Letargia o coma",
+  "Crisis en ayuno",
+  "Hipotonía o convulsiones",
+  "Olor corporal anormal",
+  "Hepatomegalia o falla hepática",
+  "Retraso del desarrollo"
+];
+
+const references = [
+  { id: 1, authors: "Saudubray JM et al.", title: "Clinical approach to inherited metabolic disorders in pediatrics", journal: "J Inherit Metab Dis", year: 2012, doi: "10.1007/s10545-011-9436-1" },
+  { id: 2, authors: "Häberle J et al.", title: "Suggested guidelines for the diagnosis and management of urea cycle disorders", journal: "Orphanet J Rare Dis", year: 2012, doi: "10.1186/1750-1172-7-32" },
+  { id: 3, authors: "Prietsch V et al.", title: "Approach to hypoglycemia in childhood", journal: "J Pediatr (Rio J)", year: 2002, doi: "10.2223/JPED.892" },
+  { id: 4, authors: "Fernandes J et al.", title: "Inborn Metabolic Diseases: Diagnosis and Treatment", journal: "Springer", year: 2016, doi: "10.1007/978-3-662-49771-8" }
+];
+
+function render() {
+  if (state.step === "input") renderInputStep();
+  else renderResultStep();
+}
+
+function toggleSymptom(symptom) {
+  const idx = state.clinicalData.symptoms.indexOf(symptom);
+  if (idx >= 0) state.clinicalData.symptoms.splice(idx, 1);
+  else state.clinicalData.symptoms.push(symptom);
+  render();
+}
+
+function calculateAnionGap() {
+  const { sodium, chloride, bicarbonate } = state.labValues;
+  const na = parseFloat(sodium), cl = parseFloat(chloride), hco3 = parseFloat(bicarbonate);
+  if (!isNaN(na) && !isNaN(cl) && !isNaN(hco3)) return (na - (cl + hco3)).toFixed(1);
+  return "";
+}
+
+function getAgeInYears() {
+  const age = parseFloat(state.clinicalData.age);
+  if (isNaN(age)) return 0;
+  return state.clinicalData.unit === "meses" ? age / 12 : age;
+}
+
+function analyze() {
+  const { glucose, ammonium, lactate, ph, sodium, chloride, bicarbonate, cpk } = state.labValues;
+  const anionGap = calculateAnionGap();
+  let results = [];
+
+  const pushResult = (title, description, priority, score) => results.push({ title, description, priority, score });
+
+  const glu = parseFloat(glucose);
+  if (!isNaN(glu) && glu < 50) {
+    if (state.clinicalData.symptoms.includes("Crisis en ayuno"))
+      pushResult("Defecto en β-oxidación", "Hipoglucemia sin cetonas, crisis en ayuno", "Emergencia", 5);
+    else pushResult("Gluconeogénesis o glucogenosis", "Hipoglucemia cetósica o con hepatomegalia", "Alta", 3);
+  }
+
+  const ammo = parseFloat(ammonium);
+  if (!isNaN(ammo) && ammo > 100) {
+    if (ammo > 200) pushResult("Defecto del ciclo de la urea", "Hiperamonemia >200 µmol/L sin acidosis", "Emergencia", 6);
+    else pushResult("Posible defecto parcial del ciclo de la urea", "Amonio moderadamente elevado", "Alta", 3);
+  }
+
+  const lac = parseFloat(lactate);
+  if (!isNaN(lac) && lac > 3) pushResult("Defecto mitocondrial o acidosis láctica", "Lactato >3 mmol/L", "Alta", 4);
+
+  const ag = parseFloat(anionGap);
+  if (!isNaN(ag) && ag > 20) pushResult("Acidemia orgánica", "Acidosis metabólica con gap aumentado", "Emergencia", 5);
+
+  const c = parseFloat(cpk);
+  if (!isNaN(c) && c > 300) pushResult("Miopatía metabólica", "CPK elevada en lactante", "Moderada", 2);
+
+  if (results.length === 0)
+    results.push({ title: "Sin patrón crítico", description: "No hay hallazgos que sugieran EIM urgente", priority: "Baja", score: 1 });
+
+  results.sort((a, b) => b.score - a.score);
+
+  state.result = { anionGap, results };
+  state.step = "result";
+  render();
+}
+
+function renderInputStep() {
+  app.innerHTML = `
+  <h1 class="text-2xl font-bold mb-4 text-center">Asistente de Diagnóstico Metabólico</h1>
+
+  <div class="space-y-6">
+    <div>
+      <h2 class="font-semibold mb-2">Edad del paciente</h2>
+      <div class="flex gap-2">
+        <input type="number" value="${state.clinicalData.age}" 
+          oninput="state.clinicalData.age=this.value" 
+          class="border p-2 rounded w-24">
+        <select onchange="state.clinicalData.unit=this.value" class="border p-2 rounded">
+          <option value="meses" ${state.clinicalData.unit==="meses"?"selected":""}>Meses</option>
+          <option value="años" ${state.clinicalData.unit==="años"?"selected":""}>Años</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="font-semibold mb-2">Síntomas</h2>
+      <div class="grid grid-cols-2 gap-2">
+        ${symptomsList.map(sym => `
+          <button onclick="toggleSymptom('${sym}')"
+            class="p-2 border rounded ${state.clinicalData.symptoms.includes(sym) ? 'bg-blue-500 text-white' : 'bg-gray-100'}">
+            ${sym}
+          </button>`).join('')}
+      </div>
+    </div>
+
+    <div>
+      <h2 class="font-semibold mb-2">Valores de laboratorio</h2>
+      <div class="grid grid-cols-2 gap-3">
+        ${Object.keys(state.labValues).map(k => `
+          <input type="number" step="any" placeholder="${k}" value="${state.labValues[k]}"
+            oninput="state.labValues['${k}']=this.value" class="border p-2 rounded">
+        `).join('')}
+      </div>
+      <p class="mt-2 text-sm text-gray-600">Anion gap: <b>${calculateAnionGap()}</b></p>
+    </div>
+
+    <div class="flex justify-center">
+      <button class="btn bg-blue-600 text-white" onclick="analyze()">Analizar</button>
+    </div>
+  </div>
+  <div class="text-center mt-6">
+    <button class="text-sm text-blue-600 underline" onclick="renderReferences()">Ver referencias</button>
+  </div>`;
+}
+
+function renderResultStep() {
+  const { anionGap, results } = state.result;
+  app.innerHTML = `
+    <h1 class="text-2xl font-bold mb-4 text-center">Resultados</h1>
+    <p class="text-sm mb-4 text-center">Anion gap calculado: <b>${anionGap}</b></p>
+
+    <div class="space-y-3">
+      ${results.map(r => `
+        <div class="border-l-4 pl-3 py-2 ${
+          r.priority==="Emergencia" ? "border-red-500" :
+          r.priority==="Alta" ? "border-orange-500" :
+          "border-green-500"
+        }">
+          <h3 class="font-semibold">${r.title}</h3>
+          <p class="text-sm">${r.description}</p>
+          <p class="text-xs text-gray-500">Prioridad: ${r.priority}</p>
+        </div>`).join('')}
+    </div>
+
+    <div class="flex justify-center gap-4 mt-6">
+      <button class="btn bg-gray-200" onclick="state.step='input';render()">Nuevo caso</button>
+      <button class="btn bg-blue-600 text-white" onclick="renderReferences()">Referencias</button>
+    </div>`;
+}
+
+function renderReferences() {
+  app.innerHTML = `
+    <h1 class="text-xl font-bold mb-4 text-center">Referencias científicas</h1>
+    <div class="space-y-4">
+      ${references.map(ref => `
+        <div class="border rounded p-3 bg-gray-50">
+          <p class="font-semibold">${ref.authors} (${ref.year})</p>
+          <p class="italic">${ref.title}</p>
+          <p>${ref.journal}</p>
+          <a href="https://doi.org/${ref.doi}" target="_blank" class="text-blue-600 text-sm">DOI: ${ref.doi}</a>
+        </div>`).join('')}
+    </div>
+    <div class="text-center mt-6">
+      <button class="btn bg-blue-600 text-white" onclick="render()">Volver</button>
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
