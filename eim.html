@@ -7,7 +7,14 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body { background-color: #f9fafb; }
-  .btn { @apply px-4 py-2 rounded-lg font-semibold shadow hover:opacity-90 transition; }
+  .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.9; }
 </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-4">
@@ -59,14 +66,8 @@ function calculateAnionGap() {
   return "";
 }
 
-function getAgeInYears() {
-  const age = parseFloat(state.clinicalData.age);
-  if (isNaN(age)) return 0;
-  return state.clinicalData.unit === "meses" ? age / 12 : age;
-}
-
 function analyze() {
-  const { glucose, ammonium, lactate, ph, sodium, chloride, bicarbonate, cpk } = state.labValues;
+  const { glucose, ammonium, lactate, bicarbonate, chloride, sodium, cpk } = state.labValues;
   const anionGap = calculateAnionGap();
   let results = [];
 
