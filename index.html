@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Errores Innatos del Metabolismo</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/lucide-react@latest/dist/lucide.min.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.276.0/dist/lucide.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.4/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 min-h-screen">
-  <div id="root" class="p-4"></div>
+  <div id="root"></div>
 
   <script type="text/babel">
 
     const { useState } = React;
     const { Activity, AlertCircle, ChevronRight, Droplets, BookOpen, X, AlertTriangle, FileText } = lucide;
 
-    function MetabolicDiagnosisApp() {
+    function App() {
       const [step, setStep] = useState('input');
       const [clinicalData, setClinicalData] = useState({ edad: '', unidadEdad: 'meses', presentacion: '', sintomas: [] });
       const [labValues, setLabValues] = useState({ glucosa: '', lactato: '', amonio: '', cetona: '', ph: '', bicarbonato: '', anionGap: '', tgp: '', cpk: '', sodio: '', cloro: '' });
@@ -35,6 +35,126 @@
         { title: "Inborn errors of metabolism in infancy", authors: "Burton BK", journal: "Pediatrics", year: "1998", doi: "10.1542/peds.102.6.e69", notes: "Guia diagnostico EIM lactantes" },
         { title: "Urea cycle disorders guidelines", authors: "Haberle J, et al.", journal: "Orphanet J Rare Dis", year: "2012", doi: "10.1186/1750-1172-7-32", notes: "NH3 mayor 200 emergencia" },
         { title: "Fatty acid oxidation disorders", authors: "Marsden D, et al.", journal: "Genet Med", year: "2021", doi: "10.1038/s41436-020-01070-0", notes: "Defectos beta-oxidacion" },
+        { title: "FAODs management", authors: "Merritt JL, et al.", journal: "Rev Endocr Metab Disord", year: "2020", doi: "10.1007/s11154-020-09568-3", notes: "Manejo FAODs" },
+        { title: "Mitochondrial DNA and disease", authors: "Chinnery PF, et al.", journal: "Lancet", year: "1999", doi: "10.1016/S0140-6736(99)90244-1", notes: "Enfermedades mitocondriales" },
+        { title: "Glycogen storage disease type I", authors: "Rake JP, et al.", journal: "Eur J Pediatr", year: "2002", doi: "10.1007/s00431-002-0999-4", notes: "Von Gierke" },
+        { title: "Pompe disease guideline", authors: "Kishnani PS, et al.", journal: "Genet Med", year: "2006", doi: "10.1097/01.gim.0000218152.87434.f3", notes: "Cardiomiopatia infantil" }
+      ];
+
+      const toggleSymptom = (s) => {
+        setClinicalData(p => ({...p, sintomas: p.sintomas.includes(s) ? p.sintomas.filter(x => x !== s) : [...p.sintomas, s]}));
+      };
+
+      const reset = () => {
+        setStep('input'); setClinicalData({ edad: '', unidadEdad: 'meses', presentacion: '', sintomas: [] });
+        setLabValues({ glucosa: '', lactato: '', amonio: '', cetona: '', ph: '', bicarbonato: '', anionGap: '', tgp: '', cpk: '', sodio: '', cloro: '' });
+        setDiagnosis([]); setFlowPath([]); setNoMetabolicDisease(false);
+      };
+
+      // Aquí va la lógica de análisis simplificada para demo
+      const analyze = () => {
+        let path = [];
+        let results = [];
+        if(clinicalData.sintomas.includes('Olor anormal')) path.push('BANDERA ROJA: Olor anormal');
+        if(clinicalData.sintomas.includes('Crisis ayuno')) path.push('BANDERA ROJA: Crisis con ayuno');
+
+        if(path.length === 0) setNoMetabolicDisease(true);
+        else {
+          results.push({ diagnosis: 'Defecto Beta-Oxidacion', subtype: 'MCAD, VLCAD', severity: 'EMERGENCIA', score: 98, recommendations: ['NUNCA AYUNAR', 'Glucosa IV continua', 'Acilcarnitinas URGENTE'], tests: ['Acilcarnitinas'] });
+          setNoMetabolicDisease(false);
+        }
+        setFlowPath(path);
+        setDiagnosis(results);
+        setStep('result');
+      };
+
+      const getSevColor = (s) => s.includes('EMERGENCIA') ? 'bg-red-500' : 'bg-blue-500';
+      const getSevClass = (s) => s.includes('EMERGENCIA') ? 'bg-red-50 border-red-500 text-red-900' : 'bg-blue-50 border-blue-400 text-blue-900';
+
+      return (
+        <div className="max-w-6xl mx-auto p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6">
+            <div className="flex justify-between mb-6">
+              <h1 className="text-2xl font-bold">Errores Innatos del Metabolismo</h1>
+              <div className="flex gap-2">
+                <button onClick={() => setShowReadme(true)} className="bg-blue-100 p-2 rounded">Doc</button>
+                <button onClick={() => setShowReferences(true)} className="bg-purple-100 p-2 rounded">Refs</button>
+              </div>
+            </div>
+
+            {step==='input' && (
+              <div>
+                <div className="mb-4">
+                  <h2 className="font-semibold">Sintomas:</h2>
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {symptoms.map(s => (
+                      <button key={s} onClick={()=>toggleSymptom(s)}
+                        className={`p-2 border rounded ${clinicalData.sintomas.includes(s)?'bg-purple-200':''}`}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button onClick={analyze} className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 px-4 rounded flex items-center gap-2">
+                  <Activity className="w-5 h-5"/>Analizar<ChevronRight className="w-5 h-5"/>
+                </button>
+              </div>
+            )}
+
+            {step==='result' && (
+              <div>
+                {noMetabolicDisease && <div className="p-4 bg-gray-100 rounded mb-4">Sin criterios de EIM</div>}
+                {diagnosis.map((dx,i)=>(
+                  <div key={i} className={`p-4 mb-4 rounded border ${getSevClass(dx.severity)}`}>
+                    <h3 className="font-bold">{dx.diagnosis} - {dx.subtype}</h3>
+                    <span className={`px-2 py-1 rounded text-white ${getSevColor(dx.severity)}`}>{dx.severity}</span>
+                    <div className="mt-2"><strong>Recomendaciones:</strong>
+                      <ul>{dx.recommendations.map((r,j)=><li key={j}>{r}</li>)}</ul>
+                    </div>
+                    <div className="mt-2"><strong>Pruebas:</strong> {dx.tests.join(', ')}</div>
+                  </div>
+                ))}
+                <button onClick={reset} className="bg-gray-600 text-white py-2 px-4 rounded">Nueva Evaluación</button>
+              </div>
+            )}
+
+            {showReadme && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                <div className="bg-white p-6 rounded-lg max-w-xl w-full relative">
+                  <button onClick={()=>setShowReadme(false)} className="absolute top-2 right-2"><X className="w-6 h-6"/></button>
+                  <h2 className="font-bold text-lg mb-2">Documentación</h2>
+                  <p>Los EIM son enfermedades genéticas causadas por defectos en enzimas, cofactores o proteínas transportadoras.</p>
+                </div>
+              </div>
+            )}
+
+            {showReferences && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                <div className="bg-white p-6 rounded-lg max-w-xl w-full relative overflow-y-auto max-h-[80vh]">
+                  <button onClick={()=>setShowReferences(false)} className="absolute top-2 right-2"><X className="w-6 h-6"/></button>
+                  <h2 className="font-bold text-lg mb-2">Referencias</h2>
+                  {references.map((ref,i)=>(
+                    <div key={i} className="mb-3 p-2 border rounded">
+                      <p className="font-semibold">{ref.title}</p>
+                      <p className="text-xs">{ref.authors}</p>
+                      <p className="text-xs">{ref.journal} ({ref.year})</p>
+                      <a href={`https://doi.org/${ref.doi}`} target="_blank" className="text-blue-600 text-xs">DOI</a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+  </script>
+</body>
+</html>        { title: "Fatty acid oxidation disorders", authors: "Marsden D, et al.", journal: "Genet Med", year: "2021", doi: "10.1038/s41436-020-01070-0", notes: "Defectos beta-oxidacion" },
         { title: "FAODs management", authors: "Merritt JL, et al.", journal: "Rev Endocr Metab Disord", year: "2020", doi: "10.1007/s11154-020-09568-3", notes: "Manejo FAODs" },
         { title: "Mitochondrial DNA and disease", authors: "Chinnery PF, et al.", journal: "Lancet", year: "1999", doi: "10.1016/S0140-6736(99)90244-1", notes: "Enfermedades mitocondriales" },
         { title: "Glycogen storage disease type I", authors: "Rake JP, et al.", journal: "Eur J Pediatr", year: "2002", doi: "10.1007/s00431-002-0999-4", notes: "Von Gierke" },
